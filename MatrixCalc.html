@@ -1,0 +1,301 @@
+<!DOCTYPE html> 
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrica Operacije</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #4a4a4a;
+      margin: 20px;
+    }
+    h1, h2, h3 {
+      color: #6a4f92;
+      text-align: center;
+      font-weight: 600;
+    }
+    input {
+      width: 70px;
+      text-align: center;
+      border: 2px solid #c8c8c8;
+      border-radius: 6px;
+      padding: 10px;
+      margin: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #8fbc8f;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 10px 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+    button:hover {
+      background-color: #6c8e6c;
+      transform: scale(1.05);
+    }
+    .matrix {
+      display: inline-block;
+      margin-right: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    .result span {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px;
+      background-color: #d1cfc9;
+      border: 2px solid #b4b0a6;
+      border-radius: 6px;
+      min-width: 40px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .container div {
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Operacije s Matricama</h1>
+  <div class="container">
+    <div>
+      <h3>Matrica A</h3>
+      <div id="matrixA" class="matrix"></div>
+      <button onclick="createMatrix('A')">Kreiraj Matricu A</button>
+      <br>
+      Redovi: <input type="number" id="rowsA" min="1" value="2"> 
+      Stupci: <input type="number" id="colsA" min="1" value="2">
+    </div>
+    
+    <div>
+      <h3>Matrica B</h3>
+      <div id="matrixB" class="matrix"></div>
+      <button onclick="createMatrix('B')">Kreiraj Matricu B</button>
+      <br>
+      Redovi: <input type="number" id="rowsB" min="1" value="2"> 
+      Stupci: <input type="number" id="colsB" min="1" value="2">
+    </div>
+  </div>
+
+  <h2>Operacije</h2>
+  <div class="container">
+    <button onclick="addMatrices()">Zbrajanje</button>
+    <button onclick="subtractMatrices()">Oduzimanje</button>
+    <button onclick="multiplyMatrices()">Množenje</button>
+    <button onclick="scalarMultiply('A')">Množenje Matrice A Skalarom</button>
+    <button onclick="scalarMultiply('B')">Množenje Matrice B Skalarom</button>
+    <button onclick="transpose('A')">Transponiraj A</button>
+    <button onclick="transpose('B')">Transponiraj B</button>
+    <button onclick="checkSymmetry('A')">Provjera Simetričnosti A</button>
+    <button onclick="checkSymmetry('B')">Provjera Simetričnosti B</button>
+    <button onclick="powerMatrixA()">Potenciraj Matricu A</button> <!-- Gumb za potenciranje matrice A -->
+    <button onclick="powerMatrixB()">Potenciraj Matricu B</button> <!-- Gumb za potenciranje matrice B -->
+  </div>
+
+  <div class="result">
+    <h3>Rezultat:</h3>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function createMatrix(matrixId) {
+      const rows = document.getElementById(`rows${matrixId}`).value;
+      const cols = document.getElementById(`cols${matrixId}`).value;
+      const container = document.getElementById(`matrix${matrixId}`);
+      container.innerHTML = '';
+
+      for (let i = 0; i < rows; i++) {
+        let row = document.createElement('div');
+        for (let j = 0; j < cols; j++) {
+          let input = document.createElement('input');
+          input.type = 'number';
+          input.id = `${matrixId}-${i}-${j}`;
+          row.appendChild(input);
+        }
+        container.appendChild(row);
+      }
+    }
+
+    function getMatrix(matrixId) {
+      const rows = document.getElementById(`rows${matrixId}`).value;
+      const cols = document.getElementById(`cols${matrixId}`).value;
+      let matrix = [];
+
+      for (let i = 0; i < rows; i++) {
+        let row = [];
+        for (let j = 0; j < cols; j++) {
+          row.push(Number(document.getElementById(`${matrixId}-${i}-${j}`).value));
+        }
+        matrix.push(row);
+      }
+      return matrix;
+    }
+
+    function displayResult(matrix) {
+      const resultContainer = document.getElementById('result');
+      resultContainer.innerHTML = '';
+
+      matrix.forEach(row => {
+        let rowDiv = document.createElement('div');
+        row.forEach(value => {
+          let cell = document.createElement('span');
+          cell.textContent = value + ' ';
+          rowDiv.appendChild(cell);
+        });
+        resultContainer.appendChild(rowDiv);
+      });
+    }
+
+    function powerMatrixA() {
+      const matrix = getMatrix('A');
+      const exponent = prompt('Unesite eksponent za matricu A:', '2');
+
+      if (matrix.length !== matrix[0].length) {
+        alert('Matrica mora biti kvadratna za potenciranje!');
+        return;
+      }
+
+      let result = matrix;
+      const n = Number(exponent);
+
+      for (let i = 1; i < n; i++) {
+        result = multiplyMatricesHelper(result, matrix);
+      }
+
+      displayResult(result);
+    }
+
+    function powerMatrixB() {
+      const matrix = getMatrix('B');
+      const exponent = prompt('Unesite eksponent za matricu B:', '2');
+
+      if (matrix.length !== matrix[0].length) {
+        alert('Matrica mora biti kvadratna za potenciranje!');
+        return;
+      }
+
+      let result = matrix;
+      const n = Number(exponent);
+
+      for (let i = 1; i < n; i++) {
+        result = multiplyMatricesHelper(result, matrix);
+      }
+
+      displayResult(result);
+    }
+
+    function multiplyMatricesHelper(A, B) {
+      const result = Array.from({ length: A.length }, () => Array(B[0].length).fill(0));
+      for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B[0].length; j++) {
+          for (let k = 0; k < B.length; k++) {
+            result[i][j] += A[i][k] * B[k][j];
+          }
+        }
+      }
+      return result;
+    }
+
+    function addMatrices() {
+      const A = getMatrix('A');
+      const B = getMatrix('B');
+      if (A.length !== B.length || A[0].length !== B[0].length) {
+        alert('Matrice moraju biti istih dimenzija za zbrajanje!');
+        return;
+      }
+      let result = A.map((row, i) => row.map((val, j) => val + B[i][j]));
+      displayResult(result);
+    }
+
+    function subtractMatrices() {
+      const A = getMatrix('A');
+      const B = getMatrix('B');
+      if (A.length !== B.length || A[0].length !== B[0].length) {
+        alert('Matrice moraju biti istih dimenzija za oduzimanje!');
+        return;
+      }
+      let result = A.map((row, i) => row.map((val, j) => val - B[i][j]));
+      displayResult(result);
+    }
+
+    function multiplyMatrices() {
+      const A = getMatrix('A');
+      const B = getMatrix('B');
+      if (A[0].length !== B.length) {
+        alert('Broj stupaca matrice A mora biti jednak broju redaka matrice B za množenje!');
+        return;
+      }
+      let result = Array.from({ length: A.length }, () => Array(B[0].length).fill(0));
+      for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B[0].length; j++) {
+          for (let k = 0; k < B.length; k++) {
+            result[i][j] += A[i][k] * B[k][j];
+          }
+        }
+      }
+      displayResult(result);
+    }
+
+    function scalarMultiply(matrixId) {
+      const matrix = getMatrix(matrixId);
+      const scalar = prompt('Unesite skalar:', '1');
+      const result = matrix.map(row => row.map(value => value * scalar));
+      displayResult(result);
+    }
+
+    function transpose(matrixId) {
+      const matrix = getMatrix(matrixId);
+      const result = Array.from({ length: matrix[0].length }, (_, i) =>
+        matrix.map(row => row[i])
+      );
+      displayResult(result);
+    }
+
+    function checkSymmetry(matrixId) {
+      const matrix = getMatrix(matrixId);
+      if (matrix.length !== matrix[0].length) {
+        alert(`Matrica ${matrixId} nije kvadratna, stoga ne može biti simetrična!`);
+        return;
+      }
+      for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix.length; j++) {
+          if (matrix[i][j] !== matrix[j][i]) {
+            alert(`Matrica ${matrixId} nije simetrična!`);
+            return;
+          }
+        }
+      }
+      alert(`Matrica ${matrixId} je simetrična!`);
+    }
+  </script>
+</body>
+</html>
